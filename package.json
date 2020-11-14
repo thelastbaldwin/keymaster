@@ -1,0 +1,24 @@
+{
+  "name": "keymaster",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon src/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "eslint": "^7.12.1",
+    "eslint-plugin-react": "^7.21.5",
+    "nodemon": "^2.0.6",
+    "prettier": "^2.1.2"
+  },
+  "dependencies": {
+    "@material-ui/core": "^4.11.0",
+    "prop-types": "^15.7.2",
+    "react": "^17.0.1"
+  }
+}
