@@ -29,8 +29,6 @@ const notes = [
   "B",
 ];
 
-const noteList = notes.flat();
-
 const noteMap = new Map();
 notes.forEach((note, i) => {
   noteMap.set(note, i);
@@ -52,6 +50,29 @@ const flatMajorKeysList = "F Bb Eb Ab Db Gb".split(" ");
 const sharpMinorKeysList = "A E B F# C# G# D#".split(" ");
 const flatMinorKeysList = "D G C F Bb Eb".split(" ");
 
+const useSharps = (notes) => notes.map((n) => (Array.isArray(n) ? n[0] : n));
+const useFlats = (notes) => notes.map((n) => (Array.isArray(n) ? n[1] : n));
+
+// This will result in some irregularities with formatting certain notes.
+// It may be  best to use these tools to generate a large static dataset and
+// apply more correct formatting.
+const formatScale = ({ rootNote, notes, scale }) => {
+  if (isMinor(scale)) {
+    if (sharpMinorKeysList.indexOf(rootNote) !== -1) {
+      return useSharps(notes);
+    } else if (flatMinorKeysList.indexOf(rootNote) !== -1) {
+      return useFlats(notes);
+    }
+  } else if (isMajor(scale)) {
+    if (sharpMajorKeysList.indexOf(rootNote) !== -1) {
+      return useSharps(notes);
+    } else if (flatMajorKeysList.indexOf(rootNote) !== -1) {
+      return useFlats(notes);
+    }
+  }
+  return notes;
+};
+
 const flatten = (i, amt) => {
   let newIndex = i - amt;
   if (newIndex >= 0) {
@@ -69,10 +90,6 @@ const raise = (i, amt) => (i + amt) % notes.length;
 const wholeStep = (i) => raise(i, 2);
 
 const halfStep = (i) => raise(i, 1);
-
-const useSharps = (notes) => notes.map((n) => (Array.isArray(n) ? n[0] : n));
-
-const useFlats = (notes) => notes.map((n) => (Array.isArray(n) ? n[1] : n));
 
 const deriveMajor = (root) => {
   const key = [];
@@ -207,21 +224,19 @@ const diatonicMelodicMinor7Chords = [
 ];
 
 const getChords = ({ rootNote, scale, use7thChords }) => {
-  if (notes.flat().indexOf(rootNote) === -1) {
-    throw new Error(`Invalid note. Must be one of ${notes.flat()}`);
-  }
-
+  const minorMap = {
+    triads: diatonicMinorChords,
+    seventhChords: diatonicMinor7Chords,
+    generator: deriveNaturalMinor,
+  };
   const chordMap = {
     major: {
       triads: diatonicMajorChords,
       seventhChords: diatonicMajor7Chords,
       generator: deriveMajor,
     },
-    minor: {
-      triads: diatonicMinorChords,
-      seventhChords: diatonicMinor7Chords,
-      generator: deriveNaturalMinor,
-    },
+    minor: minorMap,
+    "natural minor": minorMap,
     "harmonic minor": {
       triads: diatonicHarmonicMinorChords,
       seventhChords: diatonicHarmonicMinor7Chords,
@@ -236,5 +251,15 @@ const getChords = ({ rootNote, scale, use7thChords }) => {
 
   const key = chordMap[scale.toLowerCase()];
   const chordQualites = key[use7thChords ? "seventhChords" : "triads"];
-  const rawNotes = key.generator(rootNote);
+
+  return {
+    rootNote,
+    scale,
+    chordQualites,
+    notes: formatScale({ rootNote, notes: key.generator(rootNote), scale }),
+  };
 };
+
+console.log(
+  getChords({ rootNote: "F", scale: "harmonic minor", use7thChords: true })
+);
