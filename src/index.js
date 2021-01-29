@@ -142,8 +142,8 @@ const deriveMelodicMinor = (root) => {
 
 const deriveHarmonicMinor = (root) => {
   const scale = deriveNaturalMinor(root);
+  const flatSeven = halfStep(findNoteIndex(scale[6]), 1);
 
-  const flatSeven = flatten(findNoteIndex(scale[6]), 1);
   scale[6] = notes[flatSeven];
 
   return scale;
